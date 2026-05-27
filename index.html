@@ -19,17 +19,17 @@
     <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-200">
             <div class="text-center mb-6">
-                <h2 class="text-2xl font-black text-blue-900">선생님 로그인</h2>
-                <p class="text-xs text-slate-400 mt-1">상담 시간표 관리 시스템입니다.</p>
+                <h2 class="text-2xl font-black text-blue-900">TEACHER LOGIN</h2>
+                <p class="text-xs text-slate-400 mt-1">Consultation Timetable Management System</p>
             </div>
             <div class="space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">선생님 이름 선택</label>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Select a teacher's name</label>
                     <select id="teacherSelect" class="w-full p-3.5 border rounded-xl font-black text-slate-800 outline-none focus:border-blue-900 bg-slate-50 text-base">
-                        <option value="">선생님을 선택하세요</option>
+                        <option value="">Please choose your teacher</option>
                     </select>
                 </div>
-                <button onclick="handleLogin()" class="w-full bg-blue-900 text-white py-3.5 rounded-xl font-black shadow-md hover:bg-blue-800 transition-all">로그인하기</button>
+                <button onclick="handleLogin()" class="w-full bg-blue-900 text-white py-3.5 rounded-xl font-black shadow-md hover:bg-blue-800 transition-all">LOGIN</button>
             </div>
         </div>
     </div>
@@ -37,10 +37,10 @@
     <div id="mainContent" class="hidden">
         <header class="bg-blue-900 text-white p-5 shadow-xl flex justify-between items-center sticky top-0 z-50">
             <div>
-                <h1 class="text-lg font-black tracking-tighter">렉스김어학원 상담 관리</h1>
+                <h1 class="text-lg font-black tracking-tighter">LEXKIM English Conference System</h1>
                 <p id="currentTeacherDisplay" class="text-xs text-blue-300 font-bold mt-0.5"></p>
             </div>
-            <button onclick="handleLogout()" class="text-[10px] font-bold bg-white/10 px-3 py-1.5 rounded-full text-white hover:bg-white/20">로그아웃</button>
+            <button onclick="handleLogout()" class="text-[10px] font-bold bg-white/10 px-3 py-1.5 rounded-full text-white hover:bg-white/20">Log out</button>
         </header>
 
         <main class="max-w-4xl mx-auto p-4 md:p-6">
@@ -52,7 +52,7 @@
                     </select>
                 </div>
                 <div class="text-xs font-bold text-slate-400">
-                    * 체크박스 변경 후 하단의 <span class="text-blue-600">■ 변경사항 일괄 저장하기</span> 버튼을 꼭 눌러야 스크린에 반영됩니다.
+                    * After changing the check box, at the bottom of the box <span class="text-blue-600">■ Save changes in batches</span> You must press the button to reflect it on the screen.
                 </div>
             </section>
 
@@ -61,12 +61,12 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-bold">
-                                <th class="p-4 text-center w-16">상담완료</th>
-                                <th class="p-4 text-center w-28 bg-blue-50 text-blue-900">📢 스크린호출</th>
-                                <th class="p-4 w-24">상담시간</th>
+                                <th class="p-4 text-center w-16">Completed</th>
+                                <th class="p-4 text-center w-28 bg-blue-50 text-blue-900">📢 Screen</th>
+                                <th class="p-4 w-24">Time</th>
                                 <th class="p-4 w-28">회차</th>
-                                <th class="p-4 w-20">레벨</th>
-                                <th class="p-4">학생 이름 (영어)</th>
+                                <th class="p-4 w-20">LEVEL</th>
+                                <th class="p-4">Name (English)</th>
                             </tr>
                         </thead>
                         <tbody id="scheduleBody" class="divide-y divide-slate-100 text-sm">
@@ -80,9 +80,9 @@
 
             <div class="fixed bottom-0 left-0 right-0 bg-white/95 border-t p-4 z-40 shadow-2xl">
                 <div class="max-w-4xl mx-auto flex justify-between items-center">
-                    <div id="saveStatus" class="text-slate-500 font-bold text-xs">변경사항(상담 체크, 스크린 호출)을 저장해 주세요.</div>
+                    <div id="saveStatus" class="text-slate-500 font-bold text-xs">Please save the changes (counsel check, screen call).</div>
                     <button onclick="saveAllTeacherData()" class="bg-blue-900 text-white px-8 py-3 rounded-xl text-xs font-black shadow-md hover:bg-blue-800 transition-all">
-                        💾 변경사항 일괄 저장하기
+                        💾 Save changes in batches
                     </button>
                 </div>
             </div>
@@ -109,7 +109,7 @@
                 teacherCachedList.forEach(name => {
                     const opt = document.createElement('option');
                     opt.value = name;
-                    opt.innerText = name + " 선생님";
+                    opt.innerText = name + "";
                     select.appendChild(opt);
                 });
             });
@@ -129,12 +129,12 @@
         function handleLogin() {
             const teacher = document.getElementById('teacherSelect').value;
 
-            if(!teacher) return alert("선생님을 선택해 주세요.");
+            if(!teacher) return alert("Please choose your teacher.");
 
             currentTeacher = teacher;
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
-            document.getElementById('currentTeacherDisplay').innerText = `안녕하세요, ${currentTeacher} 선생님`;
+            document.getElementById('currentTeacherDisplay').innerText = ` ${currentTeacher} `;
             
             db.ref('appointments').on('value', snap => {
                 appointmentData = snap.val() || {};
@@ -214,7 +214,7 @@
                     </td>
                     <td class="p-4 text-center bg-blue-50/50">
                         <input type="checkbox" ${item.check ? 'checked' : ''} onchange="updateRowStyle(this)" class="todo-check w-5 h-5 rounded text-blue-600 border-blue-400 focus:ring-blue-600">
-                        <span class="text-[10px] block font-bold text-blue-700 mt-0.5">화면표시</span>
+                        <span class="text-[10px] block font-bold text-blue-700 mt-0.5">Displaying the screen</span>
                     </td>
                     <td class="p-4 font-bold text-blue-900">${item.time}</td>
                     <td class="p-4 font-medium text-slate-500 text-xs">${item.date}</td>
