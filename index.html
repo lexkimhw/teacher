@@ -66,7 +66,7 @@
                                 <th class="p-4 w-24">Time</th>
                                 <th class="p-4 w-28">회차</th>
                                 <th class="p-4 w-20">LEVEL</th>
-                                <th class="p-4">Name (English)</th>
+                                <th class="p-4">Name (English / Korean)</th>
                             </tr>
                         </thead>
                         <tbody id="scheduleBody" class="divide-y divide-slate-100 text-sm">
@@ -187,10 +187,8 @@
                 return;
             }
 
-            // [추가 로직 1] 첫 번째 학생의 스크린 호출이 아직 체크 안 되어 있고, 상담도 완료 안 되었다면 자동으로 체크 상태로 시작
             if (listItems.length > 0) {
                 const firstUndone = listItems.find(item => !item.done);
-                // 모든 학생이 완료된 상태가 아니고, 호출 상태가 둘 다 꺼져있는 초기 상태라면 첫 미완료 학생을 켭니다.
                 const hasAnyCheck = listItems.some(item => item.check);
                 if (firstUndone && !hasAnyCheck) {
                     firstUndone.check = true;
@@ -208,6 +206,7 @@
                 tr.setAttribute('data-key', item.appKey);
                 tr.setAttribute('data-idx', item.itemIndex);
 
+                // [수정 부분] 영어 이름을 크고 굵게(text-base, font-black), 한글 이름을 작고 흐리게(text-xs, text-slate-400) 위아래 순서를 변경했습니다.
                 tr.innerHTML = `
                     <td class="p-4 text-center">
                         <input type="checkbox" ${item.done ? 'checked' : ''} onchange="handleDoneChange(this)" class="todo-done w-4 h-4 rounded text-slate-500 border-slate-300 focus:ring-slate-500">
@@ -220,36 +219,30 @@
                     <td class="p-4 font-medium text-slate-500 text-xs">${item.date}</td>
                     <td class="p-4"><span class="bg-slate-200 text-slate-800 text-xs font-black px-2 py-1 rounded">${item.level}</span></td>
                     <td class="p-4">
-                        <div class="font-black text-slate-800">${item.krName}</div>
-                        <div class="text-xs text-slate-400 font-semibold">${item.enName}</div>
+                        <div class="font-black text-slate-900 text-base tracking-tight">${item.enName}</div>
+                        <div class="text-xs text-slate-400 font-bold mt-0.5">${item.krName}</div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // [추가 로직 2] 상담 완료 체크박스 변경 시 자동 다음 사람 호출 처리
         function handleDoneChange(element) {
             const currentTr = element.closest('tr');
             const isDoneChecked = element.checked;
             
-            // 현재 행의 스타일 업데이트
             updateRowStyle(element);
 
-            // 상담 완료가 체크되었을 때만 다음 미완료 학생을 자동으로 체크함
             if (isDoneChecked) {
-                // 현재 행의 스크린 호출은 해제해 주는 것이 자연스러우므로 해제 처리 (선택 사항)
                 const currentCheckIdx = currentTr.querySelector('.todo-check');
                 if(currentCheckIdx.checked) {
                     currentCheckIdx.checked = false;
                     updateRowStyle(currentCheckIdx);
                 }
 
-                // 테이블 내부의 모든 행을 가져옴
                 const rows = Array.from(document.querySelectorAll('#scheduleBody tr[data-key]'));
                 const currentIndex = rows.indexOf(currentTr);
 
-                // 현재 상담 완료된 사람 '이후' 행들 중, 아직 상담이 완료되지 않은(done이 체크 안 된) 첫 번째 학생을 검색
                 let nextTargetRow = null;
                 for (let i = currentIndex + 1; i < rows.length; i++) {
                     const isRowDone = rows[i].querySelector('.todo-done').checked;
@@ -259,7 +252,6 @@
                     }
                 }
 
-                // 만약 뒤에 없다면 처음부터 다시 미완료 학생 검색 (순서 보완)
                 if (!nextTargetRow) {
                     for (let i = 0; i < currentIndex; i++) {
                         const isRowDone = rows[i].querySelector('.todo-done').checked;
@@ -270,7 +262,6 @@
                     }
                 }
 
-                // 다음 미완료 대상을 찾았다면 스크린 호출 자동 체크 및 스타일 반영
                 if (nextTargetRow) {
                     const nextCheckCheckbox = nextTargetRow.querySelector('.todo-check');
                     nextCheckCheckbox.checked = true;
