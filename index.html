@@ -52,7 +52,7 @@
                     </select>
                 </div>
                 <div class="text-xs font-bold text-slate-400">
-                    * 체크박스를 변경하면 <span class="text-blue-600">10초 후 자동으로 저장</span>되거나, 하단의 버튼을 눌러 즉시 저장할 수 있습니다.
+                    * 체크박스를 변경하면 실시간 감지되어 <span class="text-blue-600">5초 후 자동으로 시스템에 저장</span>됩니다.
                 </div>
             </section>
 
@@ -79,11 +79,10 @@
             </section>
 
             <div class="fixed bottom-0 left-0 right-0 bg-white/95 border-t p-4 z-40 shadow-2xl">
-                <div class="max-w-4xl mx-auto flex justify-between items-center">
-                    <div id="saveStatus" class="text-slate-500 font-bold text-xs">변경사항(상담 체크, 스크린 호출)을 저장해 주세요.</div>
-                    <button onclick="saveAllTeacherData(true)" class="bg-blue-900 text-white px-8 py-3 rounded-xl text-xs font-black shadow-md hover:bg-blue-800 transition-all">
-                        💾 Save changes in batches
-                    </button>
+                <div class="max-w-4xl mx-auto flex items-center justify-center">
+                    <div id="saveStatus" class="text-slate-500 font-bold text-xs transition-all duration-300">
+                        상태 변경 시 5초 후 시스템에 자동 반영됩니다.
+                    </div>
                 </div>
             </div>
         </main>
@@ -98,7 +97,7 @@
         let appointmentData = {};
         let teacherCachedList = [];
         
-        // [신규] 자동 저장을 제어하기 위한 전역 타이머 변수
+        // 자동 저장을 추적하는 타이머 변수
         let autoSaveTimer = null;
 
         function initTeacherApp() {
@@ -273,7 +272,6 @@
             }
         }
 
-        // [변경] 스타일 업데이트 핸들러 내부에서 트리거를 감지하여 10초 카운트다운 타이머 구동
         function updateRowStyle(element) {
             const tr = element.closest('tr');
             const isDone = tr.querySelector('.todo-done').checked;
@@ -283,34 +281,28 @@
             if (isDone) tr.classList.add('checked-row');
             if (isCalling) tr.classList.add('calling-row');
 
-            // 자동 저장 타이머 디바운싱(Debounce) 세팅
+            // 체크 상태 변경 시 5초 자동 저장 디바운싱 타이머 작동
             triggerAutoSaveTimer();
         }
 
-        // [신규] 10초 대기열을 생성하고 변경 알림을 띄우는 코어 타이머 로직
+        // [변경 사항] 5초 자동 저장을 제어하기 위한 핵심 디바운스 로직
         function triggerAutoSaveTimer() {
             if (autoSaveTimer) clearTimeout(autoSaveTimer);
 
             const status = document.getElementById('saveStatus');
-            status.innerText = "⏳ 변경사항이 감지되었습니다. 10초 후 자동으로 저장됩니다...";
+            status.innerText = "⏳ 변경사항 감지됨: 5초 후 자동 저장됩니다...";
             status.classList.remove('text-slate-500', 'text-green-600');
             status.classList.add('text-amber-600');
 
             autoSaveTimer = setTimeout(() => {
-                saveAllTeacherData(false); // 수동이 아닌 자동 저장(false) 모드로 호출
-            }, 10000);
+                executeAutoSave();
+            }, 5000); // 5초 대기 세팅
         }
 
-        // [변경] 공용 수동/자동 통합 데이터 전송 프로세스 함수
-        function saveAllTeacherData(isManual = true) {
-            // 실행과 동시에 가동중인 자동 저장 대기열 타이머는 명시적 파괴 처리
-            if (autoSaveTimer) clearTimeout(autoSaveTimer);
-
+        // [변경 사항] 버튼 없이 백그라운드에서 데이터를 일괄 커밋하는 전용 자동 저장 함수
+        function executeAutoSave() {
             const rows = document.querySelectorAll('#scheduleBody tr[data-key]');
-            if(rows.length === 0) {
-                if(isManual) alert("저장할 데이터가 없습니다.");
-                return;
-            }
+            if(rows.length === 0) return;
 
             const updates = {};
 
@@ -331,23 +323,21 @@
 
             db.ref().update(updates).then(() => {
                 const status = document.getElementById('saveStatus');
-                status.innerText = isManual ? "✨ 변경 상태가 즉시 연동 저장되었습니다!" : "🤖 10초 타이머에 의해 변경사항이 자동 저장되었습니다.";
-                status.classList.remove('text-slate-500', 'text-amber-600');
+                status.innerText = "🤖 변경사항이 데이터베이스에 자동 저장되었습니다.";
+                status.classList.remove('text-amber-600');
                 status.classList.add('text-green-600');
                 
-                // 수동으로 저장 버튼을 눌렀을 때만 브라우저 얼럿(Alert)을 표시하도록 사용성 분할
-                if (isManual) {
-                    alert("성공적으로 저장되었습니다.");
-                }
-                
                 setTimeout(() => {
-                    status.innerText = "변경사항(상담 체크, 스크린 호출)을 저장해 주세요.";
+                    status.innerText = "상태 변경 시 5초 후 시스템에 자동 반영됩니다.";
                     status.classList.remove('text-green-600');
                     status.classList.add('text-slate-500');
-                }, 3000);
+                }, 2500);
             }).catch(err => {
                 console.error(err);
-                alert("저장 도중 오류가 발생했습니다.");
+                const status = document.getElementById('saveStatus');
+                status.innerText = "❌ 자동 저장 도중 오류가 발생했습니다.";
+                status.classList.remove('text-amber-600');
+                status.classList.add('text-red-600');
             });
         }
 
