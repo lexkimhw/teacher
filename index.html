@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>렉스김어학원 - 선생님 상담 관리 시스템</title>
+    <title>렉스김어학원 - 선생님 상담</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -52,7 +52,7 @@
                     </select>
                 </div>
                 <div class="text-xs font-bold text-slate-400">
-                    * 체크박스를 변경하면 실시간 감지되어 <span class="text-blue-600">5초 후 자동으로 시스템에 저장</span>됩니다.
+                    * If you change the check box, it'll be detected in real time <span class="text-blue-600">It is automatically stored in the system after 5 seconds.</span>
                 </div>
             </section>
 
@@ -71,7 +71,7 @@
                         </thead>
                         <tbody id="scheduleBody" class="divide-y divide-slate-100 text-sm">
                             <tr>
-                                <td colspan="6" class="p-8 text-center text-slate-400 font-bold">데이터를 불러오는 중입니다...</td>
+                                <td colspan="6" class="p-8 text-center text-slate-400 font-bold">Importing data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -81,7 +81,7 @@
             <div class="fixed bottom-0 left-0 right-0 bg-white/95 border-t p-4 z-40 shadow-2xl">
                 <div class="max-w-4xl mx-auto flex items-center justify-center">
                     <div id="saveStatus" class="text-slate-500 font-bold text-xs transition-all duration-300">
-                        상태 변경 시 5초 후 시스템에 자동 반영됩니다.
+                        If the status changes, it will automatically reflect to the system after 5 seconds.
                     </div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
             listItems.sort((a, b) => a.time.localeCompare(b.time));
 
             if (listItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">배정된 예약 일정이 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">There is no reservation schedule assigned.</td></tr>`;
                 return;
             }
 
@@ -290,7 +290,7 @@
             if (autoSaveTimer) clearTimeout(autoSaveTimer);
 
             const status = document.getElementById('saveStatus');
-            status.innerText = "⏳ 변경사항 감지됨: 5초 후 자동 저장됩니다...";
+            status.innerText = "⏳ Changes detected: Auto-saved after 5 seconds...";
             status.classList.remove('text-slate-500', 'text-green-600');
             status.classList.add('text-amber-600');
 
@@ -323,19 +323,19 @@
 
             db.ref().update(updates).then(() => {
                 const status = document.getElementById('saveStatus');
-                status.innerText = "🤖 변경사항이 데이터베이스에 자동 저장되었습니다.";
+                status.innerText = "🤖 Your changes have been automatically saved to the database.";
                 status.classList.remove('text-amber-600');
                 status.classList.add('text-green-600');
                 
                 setTimeout(() => {
-                    status.innerText = "상태 변경 시 5초 후 시스템에 자동 반영됩니다.";
+                    status.innerText = "If the status changes, it will automatically reflect to the system after 5 seconds.";
                     status.classList.remove('text-green-600');
                     status.classList.add('text-slate-500');
                 }, 2500);
             }).catch(err => {
                 console.error(err);
                 const status = document.getElementById('saveStatus');
-                status.innerText = "❌ 자동 저장 도중 오류가 발생했습니다.";
+                status.innerText = "❌ An error occurred during auto-save.";
                 status.classList.remove('text-amber-600');
                 status.classList.add('text-red-600');
             });
